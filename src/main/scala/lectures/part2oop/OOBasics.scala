@@ -32,3 +32,24 @@ class Person(name: String, val age: Int = 0) {
 }
 
 // class parameters are not fields
+
+// Exercises
+
+class Novel(name: String, yearOfRelease: Int, author: Writer) {
+  def authorAge(): Int = yearOfRelease - author.yearOfBirth
+  def isReturnBy(author: Writer): Boolean = this.author == author
+  def copy(newYearOfRelease: Int): Novel =
+    new Novel(name, newYearOfRelease, author)
+}
+class Writer(firstName: String, surName: String, val yearOfBirth: Int) {
+  def fullName(): String = s"$firstName $surName"
+}
+
+class Counter(i: Int) {
+  def currentCount(): Int = i
+  def increment(): Counter = new Counter(i + 1) // immutability
+  def decrement(): Counter = new Counter(i - 1)
+
+  def increment(n: Int): Counter = new Counter(i + n)
+  def decrement(n: Int): Counter = new Counter(i - n)
+}
