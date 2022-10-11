@@ -31,11 +31,11 @@ abstract class MyList[+A] {
   override def toString: String
 }
 
-object Empty extends MyList[Nothing] {
+case object Empty extends MyList[Nothing] {
   def head: Nothing = throw new NoSuchElementException
   def tail: MyList[Nothing] = throw new NoSuchElementException
   def isEmpty: Boolean = true
-  def add[A](i: A): MyList[A] = new Cons(i, Empty)
+  def add[A](i: A): MyList[A] = Cons(i, Empty)
   def map[B](a: MyTransformer[Nothing, B]): MyList[B] = Empty
   def filter(a: MyPredicate[Nothing]): MyList[Nothing] = Empty
   def flatMap[B](a: MyTransformer[Nothing, MyList[B]]): MyList[B] = Empty
@@ -43,32 +43,37 @@ object Empty extends MyList[Nothing] {
   override def toString: String = ""
 }
 
-class Cons[+A](h: A, t: MyList[A]) extends MyList[A] {
+case class Cons[+A](h: A, t: MyList[A]) extends MyList[A] {
   def head: A = h
   def tail: MyList[A] = t
   def isEmpty: Boolean = false
-  def add[B >: A](element: B): MyList[B] = new Cons(element, this)
+  def add[B >: A](element: B): MyList[B] = Cons(element, this)
 
   def map[B](a: MyTransformer[A, B]): MyList[B] =
-    new Cons(a.transform(h), t.map(a))
+    Cons(a.transform(h), t.map(a))
   def filter(a: MyPredicate[A]): MyList[A] = if (a.test(h)) {
-    new Cons(h, t.filter(a))
+    Cons(h, t.filter(a))
   } else {
     t.filter(a)
   }
   def flatMap[B](a: MyTransformer[A, MyList[B]]): MyList[B] =
     a.transform(h) ++ t.flatMap(a)
 
-  def ++[B >: A](list: MyList[B]): MyList[B] = new Cons(h, t ++ list)
+  def ++[B >: A](list: MyList[B]): MyList[B] = Cons(h, t ++ list)
   override def toString: String =
     if (t.isEmpty) h.toString else h.toString + "->" + t.toString
 }
 
 object Tester extends App {
   val listOfIntegers: MyList[Int] =
-    new Cons(1, new Cons(2, new Cons(3, new Cons(4, Empty))))
+    Cons(1, Cons(2, Cons(3, Cons(4, Empty))))
+
+  val listOfIntegersClone: MyList[Int] =
+    Cons(1, Cons(2, Cons(3, Cons(4, Empty))))
+
+  println(listOfIntegers == listOfIntegersClone)
   val listOfStrings: MyList[String] =
-    new Cons("Hello", new Cons("world", new Cons("scala", Empty)))
+    Cons("Hello", Cons("world", Cons("scala", Empty)))
   println(listOfIntegers)
   println(listOfStrings)
 
