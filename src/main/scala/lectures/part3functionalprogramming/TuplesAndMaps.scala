@@ -46,4 +46,83 @@ object TuplesAndMaps extends App {
   val phoneBookWithCollision: Map[String, Int] =
     Map(("Jim" -> 111), ("JIM" -> 999))
   println(phoneBookWithCollision.map(p => (p._1.toLowerCase -> p._2)))
+
+  val network: Map[String, List[String]] =
+    Map().withDefaultValue(List[String]())
+  def addAPersonToNetwork(
+      name: String,
+      net: Map[String, List[String]]
+  ): Map[String, List[String]] =
+    net + (name -> List[String]())
+
+  def removeAPersonFromNetwork(
+      name: String,
+      net: Map[String, List[String]]
+  ): Map[String, List[String]] =
+    net - name
+
+  def connectFriends(
+      name1: String,
+      name2: String,
+      net: Map[String, List[String]]
+  ): Map[String, List[String]] = {
+    if (net.contains(name1) && net.contains(name2)) {
+      net + (name1 -> (net(
+        name1
+      ) :+ name2)) + (name2 -> (net(name2) :+ name1))
+    } else {
+      net
+    }
+  }
+
+  def removeFriend(
+      name1: String,
+      name2: String,
+      net: Map[String, List[String]]
+  ): Map[String, List[String]] = {
+    if (net.contains(name1) && net.contains(name2)) {
+      net + (name1 -> net(
+        name1
+      ).filter(_ != name2)) + (name2 -> net(name2).filter(_ != name1))
+    } else {
+      net
+    }
+  }
+
+  def numberOfFriendsOfAPerson(
+      name: String,
+      net: Map[String, List[String]]
+  ): Int = net(name).length
+  def personsWithMostFriends(net: Map[String, List[String]]): String =
+    net.maxBy(pair => pair._2.size)._1
+
+  def countOfPeopleWithNoFriends(net: Map[String, List[String]]): Int =
+    net.count(_._2.isEmpty)
+
+  def areTwoPeopleConnected(
+      name1: String,
+      name2: String,
+      net: Map[String, List[String]]
+  ): Boolean = {
+    def bfs(
+        target: String,
+        consideredPeople: List[String],
+        discoveredPeople: List[String]
+    ): Boolean = {
+      if (discoveredPeople.isEmpty) false
+      else {
+        val person = discoveredPeople.head
+        if (person == target) true
+        else if (consideredPeople.contains(person))
+          bfs(target, consideredPeople, discoveredPeople.tail)
+        else
+          bfs(
+            target,
+            consideredPeople :+ person,
+            discoveredPeople.tail ++ net(person)
+          )
+      }
+    }
+    bfs(name2, List(), net(name1) :+ name1)
+  }
 }
